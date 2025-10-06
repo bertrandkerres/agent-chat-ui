@@ -14,6 +14,7 @@ import { ThreadView } from "../agent-inbox";
 import { useQueryState, parseAsBoolean } from "nuqs";
 import { GenericInterruptView } from "./generic-interrupt";
 import { useArtifact } from "../artifact";
+import { MathJax } from "better-react-mathjax";
 
 function CustomComponent({
   message,
@@ -65,6 +66,25 @@ function parseAnthropicStreamedToolCalls(
       type: "tool_call",
     };
   });
+}
+
+// Utility to split contentString into text and math blocks
+function splitMathBlocks(str: string) {
+  const regex = /\$\$([\s\S]*?)\$\$/g;
+  const result: { type: "text" | "math"; content: string }[] = [];
+  let lastIndex = 0;
+  let match;
+  while ((match = regex.exec(str)) !== null) {
+    if (match.index > lastIndex) {
+      result.push({ type: "text", content: str.slice(lastIndex, match.index) });
+    }
+    result.push({ type: "math", content: match[1].trim() });
+    lastIndex = regex.lastIndex;
+  }
+  if (lastIndex < str.length) {
+    result.push({ type: "text", content: str.slice(lastIndex) });
+  }
+  return result;
 }
 
 interface InterruptProps {
@@ -156,7 +176,13 @@ export function AssistantMessage({
           <>
             {contentString.length > 0 && (
               <div className="py-1">
-                <MarkdownText>{contentString}</MarkdownText>
+                {splitMathBlocks(contentString).map((block, i) =>
+                  block.type === "math" ? (
+                    <MathJax>{block.content}</MathJax>
+                  ) : (
+                    <MarkdownText key={i}>{block.content}</MarkdownText>
+                  )
+                )}
               </div>
             )}
 

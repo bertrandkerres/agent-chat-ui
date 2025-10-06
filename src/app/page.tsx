@@ -5,11 +5,13 @@ import { StreamProvider } from "@/providers/Stream";
 import { ThreadProvider } from "@/providers/Thread";
 import { ArtifactProvider } from "@/components/thread/artifact";
 import { Toaster } from "@/components/ui/sonner";
+import { MathJaxContext } from "better-react-mathjax";
 import React from "react";
 
 export default function DemoPage(): React.ReactNode {
   return (
     <React.Suspense fallback={<div>Loading (layout)...</div>}>
+      <MathJaxContext>
       <Toaster />
       <ThreadProvider>
         <StreamProvider>
@@ -18,6 +20,7 @@ export default function DemoPage(): React.ReactNode {
           </ArtifactProvider>
         </StreamProvider>
       </ThreadProvider>
+      </MathJaxContext>
     </React.Suspense>
   );
 }
